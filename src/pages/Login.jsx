@@ -6,23 +6,20 @@ import api from '../api/axios';
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [otp, setOtp] = useState('');
+  const [step, setStep] = useState(1); // 1 = login, 2 = otp
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
     try {
-      const res = await api.post('/auth/login', { email, password });
-      login(res.data.token, res.data.user);
-      if (res.data.user.role === 'admin') {
-        navigate('/admin');
-      } else {
-        navigate('/dashboard');
-      }
+      await api.post('/auth/login', { email, password });
+      setStep(2);
     } catch (err) {
       setError(err.response?.data?.error || 'Login failed');
     } finally {
@@ -30,32 +27,100 @@ export default function Login() {
     }
   };
 
+  const handleVerifyOtp = async (e) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+    try {
+      const res = await api.post('/auth/verify-otp', { email, otp });
+      login(res.data.token, res.data.user);
+      if (res.data.user.role === 'admin') {
+        navigate('/admin');
+      } else {
+        navigate('/dashboard');
+      }
+    } catch (err) {
+      setError(err.response?.data?.error || 'Invalid OTP');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <div style={styles.container}>
-      <div style={styles.box}>
-        <h2 style={styles.title}>Login</h2>
-        {error && <p style={styles.error}>{error}</p>}
-        <form onSubmit={handleSubmit}>
-          <input style={styles.input} type="email" placeholder="Email"
-            value={email} onChange={e => setEmail(e.target.value)} required />
-          <input style={styles.input} type="password" placeholder="Password"
-            value={password} onChange={e => setPassword(e.target.value)} required />
-          <button style={styles.button} type="submit" disabled={loading}>
-            {loading ? 'Logging in...' : 'Login'}
-          </button>
-        </form>
-        <p style={styles.link}>Don't have an account? <Link to="/register">Register</Link></p>
+    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      <div className="bg-white p-8 rounded shadow-md w-full max-w-md">
+        <h2 className="text-2xl font-bold mb-6 text-center">
+          {step === 1 ? 'Login' : 'Enter OTP'}
+        </h2>
+
+        {error && <p className="text-red-500 mb-4 text-center">{error}</p>}
+
+        {step === 1 ? (
+          <form onSubmit={handleLogin}>
+            <div className="mb-4">
+              <label className="block mb-1 font-medium">Email</label>
+              <input
+                type="email"
+                className="w-full border px-3 py-2 rounded"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
+            <div className="mb-6">
+              <label className="block mb-1 font-medium">Password</label>
+              <input
+                type="password"
+                className="w-full border px-3 py-2 rounded"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+            <button
+              type="submit"
+              className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+              disabled={loading}
+            >
+              {loading ? 'Sending OTP...' : 'Login'}
+            </button>
+            <p className="mt-4 text-center text-sm">
+              Don't have an account? <Link to="/register" className="text-blue-600">Register</Link>
+            </p>
+          </form>
+        ) : (
+          <form onSubmit={handleVerifyOtp}>
+            <p className="text-center text-gray-600 mb-4">
+              OTP sent to <b>{email}</b>
+            </p>
+            <div className="mb-6">
+              <label className="block mb-1 font-medium">Enter OTP</label>
+              <input
+                type="text"
+                className="w-full border px-3 py-2 rounded text-center text-2xl tracking-widest"
+                value={otp}
+                onChange={(e) => setOtp(e.target.value)}
+                maxLength={6}
+                required
+              />
+            </div>
+            <button
+              type="submit"
+              className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+              disabled={loading}
+            >
+              {loading ? 'Verifying...' : 'Verify OTP'}
+            </button>
+            <button
+              type="button"
+              className="w-full mt-2 text-gray-500 text-sm underline"
+              onClick={() => { setStep(1); setError(''); }}
+            >
+              Back to Login
+            </button>
+          </form>
+        )}
       </div>
     </div>
   );
 }
-
-const styles = {
-  container: { display:'flex', justifyContent:'center', alignItems:'center', height:'100vh', background:'#f0f2f5' },
-  box: { background:'white', padding:'40px', borderRadius:'10px', boxShadow:'0 2px 10px rgba(0,0,0,0.1)', width:'100%', maxWidth:'400px' },
-  title: { textAlign:'center', marginBottom:'20px', color:'#333' },
-  input: { width:'100%', padding:'10px', marginBottom:'15px', borderRadius:'6px', border:'1px solid #ddd', boxSizing:'border-box', fontSize:'14px' },
-  button: { width:'100%', padding:'10px', background:'#4f46e5', color:'white', border:'none', borderRadius:'6px', cursor:'pointer', fontSize:'16px' },
-  error: { color:'red', textAlign:'center', marginBottom:'10px' },
-  link: { textAlign:'center', marginTop:'15px', fontSize:'14px' }
-};
