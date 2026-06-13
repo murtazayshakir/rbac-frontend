@@ -1,16 +1,44 @@
-# React + Vite
+# RBAC Project (Role-Based Access Control)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A full-stack RBAC application with OTP-based login verification.
 
-Currently, two official plugins are available:
+## Live Demo
+- **Frontend:** https://rbac-frontend-zeta.vercel.app
+- **Backend:** https://rbac-backend-tau.vercel.app
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Test Credentials
 
-## React Compiler
+### Admin Account
+- **Email:** thecrazyshakir2855@gmail.com
+- **Password:** 123456
+- **Role:** Admin
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Features
+- JWT Authentication
+- OTP Verification via Email (2FA on Login)
+- Role-Based Access Control (Admin, User, Software Developer, Technical Support, Intern)
+- Protected Routes
+- Admin Dashboard
 
-## Expanding the ESLint configuration
+## Tech Stack
+- **Frontend:** React, Vite, Tailwind CSS, Axios
+- **Backend:** Node.js, Express.js, MongoDB, Mongoose
+- **Auth:** JWT, Bcrypt
+- **Email:** Resend API
+- **Deployment:** Vercel
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Setup Instructions
+
+### Backend
+1. Clone the repo
+2. Run `npm install`
+3. Create `.env` file with:
+   - MONGO_URI
+   - JWT_SECRET
+   - RESEND_API_KEY
+4. Run `node index.js`
+
+### Frontend
+1. Clone the repo
+2. Run `npm install`
+3. Run `npm run dev`
